@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    namespace = "com.example.watchtest"
+    namespace = "com.example.watch"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.watchtest"
-        minSdk = 29
+        applicationId = "com.example.watch"
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -49,9 +49,16 @@ android {
 
 dependencies {
 
-    implementation ("com.google.android.gms:play-services-wearable:18.0.0")
+    implementation("com.google.android.gms:play-services-wearable:19.0.0")
     implementation ("androidx.wear:wear:1.2.0")
     implementation ("androidx.core:core-ktx:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("androidx.health:health-services-client:1.1.0-alpha05") // O la última versión estable/alfa
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3") // Para await() con ListenableFuture, o usa kotlinx-coroutines-play-services si tus Tasks son de Play Services
+    implementation("androidx.activity:activity-ktx:1.8.0") // Para registerForActivityResult
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.activity:activity-ktx:1.9.0")
     implementation(libs.play.services.wearable)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)

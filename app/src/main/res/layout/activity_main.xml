@@ -1,0 +1,53 @@
+<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:deviceIds="wear">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal|top">
+
+        <TextView
+            android:id="@+id/statusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Iniciando..."
+            android:layout_marginBottom="12dp"
+            android:textAlignment="center"/>
+
+        <TextView
+            android:id="@+id/heartRateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FC: -- bpm"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/spO2TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SpO2: -- %"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/stressLevelTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Estrés: --"
+            android:textSize="18sp"
+            android:layout_marginBottom="12dp"/>
+
+        <Button
+            android:id="@+id/measureButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medir Signos"/>
+
+    </LinearLayout>
+</androidx.wear.widget.BoxInsetLayout>

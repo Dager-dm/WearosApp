@@ -1,4 +1,4 @@
-package com.example.watchtest.complication
+package com.example.watch.complication
 
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
