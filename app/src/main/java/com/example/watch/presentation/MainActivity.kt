@@ -27,6 +27,27 @@ import kotlinx.coroutines.launch
 import com.example.watch.services.HeartRateAverager
 import androidx.wear.compose.material.MaterialTheme
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.wear.compose.material.Icon
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.ui.unit.dp
+
+
+
+import androidx.compose.ui.graphics.graphicsLayer
+
+
+import androidx.compose.foundation.layout.size
+
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.material.icons.Icons
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +122,7 @@ fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
             .background(MaterialTheme.colors.background), contentAlignment = Alignment.Center) {
             if (measuring) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
+                    HeartbeatAnimationIcon()
                     Spacer(modifier = Modifier.height(12.dp))
                     Text("Midiendo frecuencia cardíaca...", textAlign = TextAlign.Center)
                 }
@@ -113,7 +134,31 @@ fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
 }
 
 
-@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+    @Composable
+    fun HeartbeatAnimationIcon() {
+        val infiniteTransition = rememberInfiniteTransition()
+        val scale by infiniteTransition.animateFloat(
+            initialValue = 0.85f,
+            targetValue = 1.15f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(600, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+
+        Icon(
+            imageVector = Icons.Default.Favorite,
+            contentDescription = "Heart Beat",
+            modifier = Modifier
+                .size(48.dp)
+                .graphicsLayer(scaleX = scale, scaleY = scale),
+            tint = MaterialTheme.colors.primary
+        )
+    }
+
+
+
+    @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DiagnosticPreview() {
     DiagnosticScreen(onMeasuringStateChanged = {})
