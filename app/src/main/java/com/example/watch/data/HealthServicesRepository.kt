@@ -41,6 +41,7 @@ class HealthServicesRepository(context: Context) {
      * [callbackFlow] is used to bridge between a callback-based API and Kotlin flows.
      */
     fun heartRateMeasureFlow() = callbackFlow {
+
         val callback = object : MeasureCallback {
             override fun onAvailabilityChanged(
                 dataType: DeltaDataType<*, *>,
@@ -55,6 +56,8 @@ class HealthServicesRepository(context: Context) {
             override fun onDataReceived(data: DataPointContainer) {
                 val heartRateBpm = data.getData(DataType.HEART_RATE_BPM)
                 trySendBlocking(MeasureMessage.MeasureData(heartRateBpm))
+                val bpmValues = heartRateBpm.joinToString { it.value.toString() }
+                Log.d(TAG, "heartRateBpm valores: $bpmValues")
             }
         }
 

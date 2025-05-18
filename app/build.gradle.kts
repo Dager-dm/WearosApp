@@ -59,6 +59,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.0") // Para registerForActivityResult
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.wear.compose:compose-material:1.4.0-beta03")
     implementation(libs.play.services.wearable)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)

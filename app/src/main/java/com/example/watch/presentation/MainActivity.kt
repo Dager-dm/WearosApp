@@ -1,7 +1,3 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter to find the
- * most up to date changes to the libraries and their usages.
- */
 
 package com.example.watch.presentation
 
@@ -9,11 +5,14 @@ package com.example.watch.presentation
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,10 +23,10 @@ import com.example.watch.presentation.theme.WatchTestTheme
 import androidx.wear.compose.material.*
 import androidx.wear.tooling.preview.devices.WearDevices
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.watch.data.HealthServicesRepository
-import com.example.watch.data.MeasureMessage
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import com.example.watch.services.HeartRateAverager
+import androidx.wear.compose.material.MaterialTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,51 +50,71 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // se limpia el flag si la actividad se destruye mientras la pantalla se mantenía encendida
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
     private fun startDiagnostics() {
         setContent {
-            DiagnosticScreen()
-        }
+            DiagnosticScreen { currentlyMeasuring ->
+                if (currentlyMeasuring) {
+                    //mientras que se está midiendo se mantiene la pantalla encendida
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    //cuando se detiene la medición se limpia el flag
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+            }
     }
+
 }
 
 @Composable
-fun DiagnosticScreen() {
+fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
+    var measuring by remember { mutableStateOf(true) }
     var hr by remember { mutableStateOf("--") }
-    var availability by remember { mutableStateOf("--") }
     val context = LocalContext.current
-    val repo = remember { HealthServicesRepository(context) }
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(measuring) {
+        onMeasuringStateChanged(measuring)
+    }
 
     LaunchedEffect(Unit) {
         scope.launch {
-            repo.heartRateMeasureFlow().collect { message ->
-                when (message) {
-                    is MeasureMessage.MeasureAvailability -> {
-                        availability = message.availability.toString()
-                    }
-                    is MeasureMessage.MeasureData -> {
-                        val bpm = message.data.firstOrNull()?.value?.toInt()
-                        if (bpm != null) hr = "$bpm bpm"
-                    }
-                }
-            }
+            onMeasuringStateChanged(true) // Asegura que se activa al inicio
+            measuring = true // se actualiza el estado local también
+
+            val averager = HeartRateAverager(context)
+            val promedio = averager.measureAverage()
+            hr = promedio?.let { "$it bpm" } ?: "No disponible"
+
+            measuring = false // se actualiza el estado local
+            onMeasuringStateChanged(false) // Notifica que la medición terminó
         }
     }
 
     WatchTestTheme {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "❤️ HR: $hr", textAlign = TextAlign.Center)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "📶 Disponibilidad: $availability", textAlign = TextAlign.Center)
+        Box(modifier = Modifier.fillMaxSize()
+            .background(MaterialTheme.colors.background), contentAlignment = Alignment.Center) {
+            if (measuring) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Midiendo frecuencia cardíaca...", textAlign = TextAlign.Center)
+                }
+            } else {
+                Text("❤️ HR Promedio: $hr", textAlign = TextAlign.Center)
             }
         }
     }
 }
 
+
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DiagnosticPreview() {
-    DiagnosticScreen()
-}
-
+    DiagnosticScreen(onMeasuringStateChanged = {})
+}}
