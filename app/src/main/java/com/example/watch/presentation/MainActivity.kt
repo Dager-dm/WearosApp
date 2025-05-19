@@ -3,10 +3,12 @@ package com.example.watch.presentation
 
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -47,6 +49,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.unit.sp
+import com.example.watch.services.MessageSender
+import kotlinx.coroutines.delay
 
 
 class MainActivity : ComponentActivity() {
@@ -79,25 +84,34 @@ class MainActivity : ComponentActivity() {
 
     private fun startDiagnostics() {
         setContent {
-            DiagnosticScreen { currentlyMeasuring ->
-                if (currentlyMeasuring) {
-                    //mientras que se está midiendo se mantiene la pantalla encendida
-                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                } else {
-                    //cuando se detiene la medición se limpia el flag
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            DiagnosticScreen (
+                onMeasuringStateChanged = { currentlyMeasuring ->
+                    if (currentlyMeasuring) {
+                        //mientras que se está midiendo se mantiene la pantalla encendida
+                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    } else {
+                        //cuando se detiene la medición se limpia el flag
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    }
+                },
+                onMeasurementFinishedAndSent={
+
                 }
-            }
+
+            )
     }
 
 }
 
 @Composable
-fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
+fun DiagnosticScreen(
+    onMeasuringStateChanged: (Boolean) -> Unit,
+    onMeasurementFinishedAndSent: () -> Unit) {
     var measuring by remember { mutableStateOf(true) }
     var hr by remember { mutableStateOf("--") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val activity = LocalActivity.current // Obtener la actividad para cerrarla
 
     LaunchedEffect(measuring) {
         onMeasuringStateChanged(measuring)
@@ -111,24 +125,32 @@ fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
             val averager = HeartRateAverager(context)
             val promedio = averager.measureAverage()
             hr = promedio?.let { "$it bpm" } ?: "No disponible"
-
+            MessageSender.sendMessageToPhone(applicationContext, hr)
             measuring = false // se actualiza el estado local
             onMeasuringStateChanged(false) // Notifica que la medición terminó
+
+            delay(7000L)
+
+            activity?.finishAndRemoveTask() // Cierra la actividad
         }
     }
 
     WatchTestTheme {
         Box(modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colors.background), contentAlignment = Alignment.Center) {
-            if (measuring) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    HeartbeatAnimationIcon()
-                    Spacer(modifier = Modifier.height(12.dp))
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                HeartbeatAnimationIcon()
+                Spacer(modifier = Modifier.height(12.dp))
+                if (measuring) {
+
                     Text("Midiendo frecuencia cardíaca...", textAlign = TextAlign.Center)
+
+                } else {
+                    Text(hr, textAlign = TextAlign.Center, fontSize = 24.sp)
                 }
-            } else {
-                Text("❤️ HR Promedio: $hr", textAlign = TextAlign.Center)
             }
+
         }
     }
 }
@@ -157,9 +179,8 @@ fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
     }
 
 
-
     @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DiagnosticPreview() {
-    DiagnosticScreen(onMeasuringStateChanged = {})
+    DiagnosticScreen(onMeasuringStateChanged = {}, onMeasurementFinishedAndSent = {})
 }}
