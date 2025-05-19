@@ -62,6 +62,7 @@ dependencies {
     implementation("androidx.wear.compose:compose-material:1.4.0-beta03")
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation("androidx.compose.material:material-icons-core:1.7.0")
+    implementation (files("libs/samsung-health-sensor-api-v1.3.0.aar"))
     implementation(libs.play.services.wearable)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)

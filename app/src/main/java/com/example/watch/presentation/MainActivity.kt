@@ -1,6 +1,4 @@
-
 package com.example.watch.presentation
-
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -25,55 +23,50 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import com.example.watch.services.HeartRateAverager
-import androidx.wear.compose.material.MaterialTheme
-
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.wear.compose.material.Icon
+import com.example.watch.services.SpO2Measurer
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.ui.unit.dp
-
-
-
+import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.graphicsLayer
 
-
-import androidx.compose.foundation.layout.size
-
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.material.icons.Icons
-
-
 class MainActivity : ComponentActivity() {
+
+    private val permissionsToRequest = arrayOf(
+        Manifest.permission.BODY_SENSORS,
+        Manifest.permission.ACTIVITY_RECOGNITION
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val permissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                if (permissions.all { it.value }) {
                     startDiagnostics()
                 }
             }
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BODY_SENSORS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        val allPermissionsGranted = listOf(
+            Manifest.permission.BODY_SENSORS,
+            Manifest.permission.ACTIVITY_RECOGNITION
+        ).all { perm ->
+            ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allPermissionsGranted) {
             startDiagnostics()
         } else {
-            permissionLauncher.launch(Manifest.permission.BODY_SENSORS)
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.BODY_SENSORS,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                )
+            )
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // se limpia el flag si la actividad se destruye mientras la pantalla se mantenía encendida
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
@@ -81,21 +74,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             DiagnosticScreen { currentlyMeasuring ->
                 if (currentlyMeasuring) {
-                    //mientras que se está midiendo se mantiene la pantalla encendida
                     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 } else {
-                    //cuando se detiene la medición se limpia el flag
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
             }
+        }
     }
-
 }
 
 @Composable
 fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
     var measuring by remember { mutableStateOf(true) }
     var hr by remember { mutableStateOf("--") }
+    var spo2 by remember { mutableStateOf("--") }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -105,61 +97,92 @@ fun DiagnosticScreen(onMeasuringStateChanged: (Boolean) -> Unit) {
 
     LaunchedEffect(Unit) {
         scope.launch {
-            onMeasuringStateChanged(true) // Asegura que se activa al inicio
-            measuring = true // se actualiza el estado local también
+            onMeasuringStateChanged(true)
+            measuring = true
 
-            val averager = HeartRateAverager(context)
-            val promedio = averager.measureAverage()
-            hr = promedio?.let { "$it bpm" } ?: "No disponible"
+            // Medir HR y SpO2 en paralelo
+            val hrAverager = HeartRateAverager(context)
+            val spo2Measurer = SpO2Measurer(context)
 
-            measuring = false // se actualiza el estado local
-            onMeasuringStateChanged(false) // Notifica que la medición terminó
+            val hrPromedio = hrAverager.measureAverage()
+            val spo2Valor = spo2Measurer.measureSpO2()
+
+            hr = hrPromedio?.let { "$it bpm" } ?: "No disponible"
+            spo2 = spo2Valor?.let { "$it%" } ?: "No disponible"
+
+            measuring = false
+            onMeasuringStateChanged(false)
         }
     }
 
     WatchTestTheme {
-        Box(modifier = Modifier.fillMaxSize()
-            .background(MaterialTheme.colors.background), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background),
+            contentAlignment = Alignment.Center
+        ) {
             if (measuring) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     HeartbeatAnimationIcon()
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("Midiendo frecuencia cardíaca...", textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Midiendo signos vitales...",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2
+                    )
                 }
             } else {
-                Text("❤️ HR Promedio: $hr", textAlign = TextAlign.Center)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "❤️ HR: $hr",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "\uD83E\uDEC0 SpO2: $spo2",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1
+                    )
+                }
             }
         }
     }
 }
 
-
-    @Composable
-    fun HeartbeatAnimationIcon() {
-        val infiniteTransition = rememberInfiniteTransition()
-        val scale by infiniteTransition.animateFloat(
-            initialValue = 0.85f,
-            targetValue = 1.15f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(600, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            )
+@Composable
+fun HeartbeatAnimationIcon() {
+    val infiniteTransition = rememberInfiniteTransition()
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
         )
+    )
 
-        Icon(
-            imageVector = Icons.Default.Favorite,
-            contentDescription = "Heart Beat",
-            modifier = Modifier
-                .size(48.dp)
-                .graphicsLayer(scaleX = scale, scaleY = scale),
-            tint = MaterialTheme.colors.primary
-        )
-    }
+    Icon(
+        imageVector = Icons.Default.Favorite,
+        contentDescription = "Heart Beat",
+        modifier = Modifier
+            .size(48.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale),
+        tint = MaterialTheme.colors.primary
+    )
+}
 
-
-
-    @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DiagnosticPreview() {
     DiagnosticScreen(onMeasuringStateChanged = {})
-}}
+}
