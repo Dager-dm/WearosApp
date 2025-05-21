@@ -1,10 +1,14 @@
-package com.example.watch.presentation
+
+package com.example.maternapp.presentation
+
+
 
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -17,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.example.watch.presentation.theme.WatchTestTheme
+import com.example.maternapp.presentation.theme.WatchTestTheme
 import androidx.wear.compose.material.*
 import androidx.wear.tooling.preview.devices.WearDevices
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,14 +32,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.graphicsLayer
+import com.example.maternapp.services.HeartRateAverager
+import androidx.wear.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.wear.compose.material.Icon
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.size
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.material.icons.Icons
+import androidx.compose.ui.unit.sp
+import com.example.maternapp.services.MessageSender
+import kotlinx.coroutines.delay
+
 
 class MainActivity : ComponentActivity() {
-
-    private val permissionsToRequest = arrayOf(
-        Manifest.permission.BODY_SENSORS,
-        Manifest.permission.ACTIVITY_RECOGNITION
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

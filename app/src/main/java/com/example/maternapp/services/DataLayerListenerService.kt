@@ -1,6 +1,8 @@
-package com.example.watch.services
+package com.example.maternapp.services
 
+import android.content.Intent
 import android.util.Log
+import com.example.maternapp.presentation.MainActivity
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 
@@ -23,8 +25,17 @@ class DataLayerListenerService : WearableListenerService() {
 
             Log.d(TAG, "Contenido del mensaje: $messageContent")
             Log.d(TAG, "Enviado por nodo: $senderNodeId")
-            MessageSender.sendMessageToPhone(applicationContext, "Respondiendo chavales")
+            //MessageSender.sendMessageToPhone(applicationContext, "Respondiendo chavales")
 
+            val startIntent = Intent(this, MainActivity::class.java).apply {
+                // FLAG_ACTIVITY_NEW_TASK es necesario porque estás iniciando
+                // la Activity desde un contexto de Servicio.
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                // Opcional: puedes añadir más flags como FLAG_ACTIVITY_CLEAR_TOP
+                // si quieres que solo haya una instancia de MainActivity.
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+            startActivity(startIntent)
         }
     }
 }

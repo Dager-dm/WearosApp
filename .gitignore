@@ -13,4 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+.idea/
 /.idea/
+/replay_pid19768.log
+/hs_err_pid19768.log
