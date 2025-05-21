@@ -1,9 +1,8 @@
 
-package com.example.watch.presentation
+package com.example.maternapp.presentation
 
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.WindowManager
@@ -21,20 +20,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.example.watch.presentation.theme.WatchTestTheme
+import com.example.maternapp.presentation.theme.WatchTestTheme
 import androidx.wear.compose.material.*
 import androidx.wear.tooling.preview.devices.WearDevices
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
-import com.example.watch.services.HeartRateAverager
+import com.example.maternapp.services.HeartRateAverager
 import androidx.wear.compose.material.MaterialTheme
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.wear.compose.material.Icon
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.ui.unit.dp
-
 
 
 import androidx.compose.ui.graphics.graphicsLayer
@@ -50,7 +46,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.unit.sp
-import com.example.watch.services.MessageSender
+import com.example.maternapp.services.MessageSender
 import kotlinx.coroutines.delay
 
 

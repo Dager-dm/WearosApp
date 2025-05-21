@@ -1,4 +1,4 @@
-package com.example.watch.tile
+package com.example.maternapp.tile
 
 import android.content.Context
 import androidx.wear.protolayout.ColorBuilders.argb

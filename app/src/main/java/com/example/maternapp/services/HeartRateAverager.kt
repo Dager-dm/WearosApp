@@ -1,15 +1,12 @@
-package com.example.watch.services
+package com.example.maternapp.services
 
 import android.content.Context
 import android.util.Log
-import com.example.watch.data.HealthServicesRepository
-import com.example.watch.data.MeasureMessage
+import com.example.maternapp.data.HealthServicesRepository
+import com.example.maternapp.data.MeasureMessage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.withContext
-import kotlin.toString
 
 class HeartRateAverager(private val context: Context) {
     private val repo = HealthServicesRepository(context)

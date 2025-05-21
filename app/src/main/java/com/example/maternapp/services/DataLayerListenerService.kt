@@ -1,8 +1,8 @@
-package com.example.watch.services
+package com.example.maternapp.services
 
 import android.content.Intent
 import android.util.Log
-import com.example.watch.presentation.MainActivity
+import com.example.maternapp.presentation.MainActivity
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.watch"
+    namespace = "com.example.maternapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.watch"
+        applicationId = "com.example.maternapp"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
