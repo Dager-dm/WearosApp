@@ -7,4 +7,23 @@
     <string name="hello_world">From the Square world,\nHello, %1$s!</string>
     <string name="tile_label">Example tile</string>
     <string name="complication_label">Example complication</string>
+    <string name="ConnectedToHS">Connected to Health Tracking Service.</string>
+    <string name="NoValidHealthPlatform">Health Platform version is outdated or not installed.</string>
+    <string name="PermissionDeniedPermanently">Permissions denied. Grant permissions in watch settings and start application again.</string>
+    <string name="PermissionDeniedRationale">Body Sensors permission is required to make a measurement.</string>
+    <string name="NoPermission">Permissions Check Failed.</string>
+    <string name="SDKPolicyError">SDK Policy denied.</string>
+    <string name="ConnectionError">Could not connect to Health Tracking Service. Check error log.</string>
+    <string name="NoSPo2Support">SpO2 not supported on this device.</string>
+    <string name="SpO2DefaultValue">0</string>
+    <string name="StatusDefaultValue">Press Measure to initiate SpO2 measurement.</string>
+    <string name="StatusCalculating">Calculating…</string>
+    <string name="StatusDeviceMoving">Device is moving.</string>
+    <string name="StatusLowSignal">Low signal quality.</string>
+    <string name="StatusCompleted">Measurement completed.</string>
+    <string name="SpO2Value">SpO2 value: </string>
+    <string name="StopLabel">Stop</string>
+    <string name="StartLabel">Measure</string>
+    <string name="TxtPercent">%</string>
+    <string name="MeasurementFailed">Measurement failed. Keep your watch tightly on and try again.</string>
 </resources>

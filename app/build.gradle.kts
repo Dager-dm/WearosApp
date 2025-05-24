@@ -48,10 +48,10 @@ android {
 }
 
 dependencies {
-
+    implementation (files("libs/samsung-health-sensor-api-v1.3.0.aar"))
     implementation("com.google.android.gms:play-services-wearable:19.0.0")
-    implementation ("androidx.wear:wear:1.2.0")
-    implementation ("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.wear:wear:1.2.0")
+    implementation("androidx.core:core-ktx:1.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("androidx.health:health-services-client:1.1.0-alpha05") // O la última versión estable/alfa
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
@@ -59,10 +59,10 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.0") // Para registerForActivityResult
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity-ktx:1.9.0")
-    implementation("androidx.wear.compose:compose-material:1.4.0-beta03")
+    implementation("androidx.wear.compose:compose-material:1.4.0")
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation("androidx.compose.material:material-icons-core:1.7.0")
-    implementation (files("libs/samsung-health-sensor-api-v1.3.0.aar"))
+    implementation("androidx.compose.animation:animation:1.7.0")
     implementation(libs.play.services.wearable)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)

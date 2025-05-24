@@ -16,7 +16,6 @@ import androidx.health.services.client.data.SampleDataPoint
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
-
 import kotlinx.coroutines.runBlocking
 
 /**
